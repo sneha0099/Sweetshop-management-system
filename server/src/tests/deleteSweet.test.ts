@@ -44,3 +44,4 @@ describe('DELETE /api/sweets/delete/:id', () => {
     expect(res.body).toHaveProperty('message', 'Internal Server Error');
   });
 });
+
