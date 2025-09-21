@@ -45,7 +45,7 @@ export default function Register() {
 
     const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
         try {
-            console.log('Registration data:', data); // Debug log
+    
             await RegisterUser(
                 data.firstName,
                 data.lastName, 
@@ -54,7 +54,7 @@ export default function Register() {
                 data.password,
                 
             );
-            console.log('Registration successful'); // Debug log
+            
             toast.success('Registration successful! Please check your email for verification.');
             reset();
             

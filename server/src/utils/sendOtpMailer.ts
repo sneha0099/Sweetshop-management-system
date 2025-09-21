@@ -4,8 +4,6 @@ import { ApiError } from "../utils/apiError";
 
 const sendOtpMail = async (_id: any, email: string) => {
   try {
-    // Generate a 6-digit OTP
-    console.log(_id, email);
     
     const otp = Math.floor(100000 + Math.random() * 900000);
 
@@ -48,7 +46,6 @@ const sendOtpMail = async (_id: any, email: string) => {
       createdAt: Date.now(),
       expiresAt: Date.now() + 3600000, // 1 hour expiration
     });
-    console.log(otpVerification);
 
     if (!otpVerification) {
       throw new ApiError(500, "Something went wrong while saving the OTP.");

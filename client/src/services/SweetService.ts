@@ -14,19 +14,17 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
-  const state = useAuthStore.getState();
-  console.log('Auth state:', { isAuthenticated: state.isAuthenticated, hasToken: !!state.token, hasUser: !!state.user });
+  const state = useAuthStore.getState();  
   
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
   
-  // Add Authorization header if user is authenticated
-  if (state.isAuthenticated && state.token) {
+  // Add Authorization header if user is authenticated and has token
+  if (state.token) {
     headers.Authorization = `Bearer ${state.token}`;
-    console.log('Adding Authorization header with token');
   } else {
-    console.log('No token available for authorization');
+    console.log('No token available for authorization. Auth state:', state.isAuthenticated); 
   }
   
   return headers;
@@ -35,7 +33,10 @@ const getAuthHeaders = () => {
 // API service
 export const sweetService = {
   async getAllSweets(queryString: string = "") {
-    const res = await fetch(`${API_URL}${queryString}`);
+    const res = await fetch(`${API_URL}${queryString}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
     
 
     if (!res.ok) {
@@ -58,7 +59,6 @@ export const getCategories = async () => {
 };
 
 export const addSweet = async (sweet: NewSweet): Promise<Sweet> => {
-  console.log("Adding sweet:", sweet);
   
   const res = await fetch(`${API_URL}`, {
     method: "POST",
@@ -75,7 +75,6 @@ export const addSweet = async (sweet: NewSweet): Promise<Sweet> => {
 };
 
 export const updateSweetId = async (id: string, sweet: NewSweet): Promise<Sweet> => {
-  console.log("Updating sweet:", sweet);
   
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PATCH",
@@ -92,19 +91,16 @@ export const updateSweetId = async (id: string, sweet: NewSweet): Promise<Sweet>
 };
 
 export const deleteSweet = async (id: string): Promise<void> => {
-  console.log('Attempting to delete sweet with ID:', id);
+
   const headers = getAuthHeaders();
-  console.log('Request headers:', headers);
+
   
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers,
   });
 
-  console.log('Delete response status:', res.status);
   if (!res.ok) {
-    const errorText = await res.text();
-    console.log('Delete error response:', errorText);
     throw new Error("Failed to delete sweet");
   }
 };

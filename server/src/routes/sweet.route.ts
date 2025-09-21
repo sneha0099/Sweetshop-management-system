@@ -14,7 +14,7 @@ const sweetRoutes = Router();
 sweetRoutes.post('/', requireAuth, requireRole('admin'), addSweet);
 sweetRoutes.patch('/:id', requireAuth, requireRole('admin'), updateSweet);
 sweetRoutes.delete('/:id', requireAuth, requireRole('admin'), deleteSweet);
-sweetRoutes.get('/', getAllSweets);
+sweetRoutes.get('/', requireAuth, getAllSweets);
 sweetRoutes.post('/:id/purchase', requireAuth, purchaseSweet);
 sweetRoutes.patch('/:id/restock', requireAuth, requireRole('admin'), restockSweet);
 sweetRoutes.get('/categories', getAllCategories);

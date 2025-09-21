@@ -37,8 +37,6 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             login: async (email: string, password: string) => {
                 try {
-                    console.log("email", email);
-                    console.log("password", password);
                     const response = await fetch(`${API_URL}/login`, {
                         method: 'POST',
                         headers: {
@@ -47,16 +45,15 @@ export const useAuthStore = create<AuthState>()(
                         body: JSON.stringify({ email, password }),
                     });
                     const data = await response.json();
-                    console.log('Backend response:', data); // Debug log
-                    console.log('Token from backend:', data.token); // Debug token specifically
+               
                     if (data.success) {
-                        console.log('Setting auth state with token:', data.token); // Debug
+            
                         set({ 
                             user: data.user, 
                             token: data.token,
                             isAuthenticated: true 
                         });
-                        console.log('Auth state after login:', useAuthStore.getState()); // Debug final state
+                        
                     } else {
                         throw new Error('Login failed!');
                     }
@@ -72,12 +69,6 @@ export const useAuthStore = create<AuthState>()(
                 password: string
             ) => {
                 try {
-
-                    console.log("email", email);
-                    console.log("password", password);
-                    console.log("firstname", firstname);
-                    console.log("lastname", lastname);
-                    console.log("role", role);
                     const response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
                         headers: {
@@ -92,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
                         }),
                     });
                     const data = await response.json();
-                    console.log('Backend response:', data); // Debug log
+
                     if (response.ok && data.success) {
                         set({ user: data.user, isAuthenticated: false });
                     } else {

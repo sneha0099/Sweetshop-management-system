@@ -26,7 +26,7 @@ export const authenticateUser = async (email: string, password: string) => {
   try {
     // Find user by email
     const user = await User.findOne({ email });
-    console.log(user);
+
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -36,7 +36,7 @@ export const authenticateUser = async (email: string, password: string) => {
     if (!isPasswordValid) {
       throw new Error('Invalid credentials');
     }
-    console.log(isPasswordValid)
+
 
     return user;
   } catch (error) {
