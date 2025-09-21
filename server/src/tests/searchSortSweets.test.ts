@@ -4,11 +4,29 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import Sweet from '../models/sweet.model';
+import { User } from '../models/user.model';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env.test') });
 
+let userToken: string;
+
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGO_TEST_URI as string);
+  
+  // Create a regular user for testing (both admin and user roles can search/sort)
+  const testUser = new User({
+    firstname: 'Test',
+    lastname: 'User',
+    email: 'user@test.com',
+    password: 'testpassword123',
+    role: 'user',
+    verified: true
+  });
+  
+  await testUser.save();
+  
+  // Generate token for the user
+  userToken = testUser.generateToken();
 });
 
 afterAll(async () => {
@@ -33,9 +51,9 @@ describe('GET /api/sweets with search, filter, sort and pagination', () => {
 
   // this test checks if the GET /api/sweets endpoint returns all sweets
   it('should return sweets filtered by category, sorted by price descending', async () => {
-    const res = await request(app).get(
-      '/api/sweets?category=Milk-Based&sortBy=price&order=desc'
-    );
+    const res = await request(app)
+      .get('/api/sweets?category=Milk-Based&sortBy=price&order=desc')
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.sweets)).toBe(true);
@@ -50,7 +68,9 @@ describe('GET /api/sweets with search, filter, sort and pagination', () => {
 
   //filter by name of the sweet having 'ka' in it
   it('should return sweets with name containing "ka"', async () => {
-    const res = await request(app).get('/api/sweets?name=ka');
+    const res = await request(app)
+      .get('/api/sweets?name=ka')
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.sweets.length).toBeGreaterThan(0);
@@ -59,12 +79,21 @@ describe('GET /api/sweets with search, filter, sort and pagination', () => {
   });
 
   it('should apply pagination and return limited sweets', async () => {
-    const res = await request(app).get('/api/sweets?page=1&limit=2');
+    const res = await request(app)
+      .get('/api/sweets?page=1&limit=2')
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.sweets)).toBe(true);
     expect(res.body.sweets.length).toBeLessThanOrEqual(2);
     expect(res.body).toHaveProperty('total');
     expect(res.body).toHaveProperty('totalPages');
+  });
+
+  it('should return 401 if no authentication token provided', async () => {
+    const res = await request(app).get('/api/sweets?category=Milk-Based');
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.message).toBe('Access denied. No token provided.');
   });
 });
